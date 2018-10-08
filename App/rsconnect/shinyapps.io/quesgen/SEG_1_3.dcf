@@ -1,0 +1,13 @@
+name: SEG_1_3
+title: SEG_1_3
+username:
+account: quesgen
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 485958
+bundleId: 1619180
+url: https://quesgen.shinyapps.io/SEG_1_3/
+when: 1538524521.76369
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: 1.5.1-DT_formatStyle_RiskCat.R|index.htm|manifest.json

@@ -1,0 +1,12 @@
+name: SEG_heatmap
+title: SEG_heatmap
+username:
+account: n3wsandnumb3rs
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 345205
+bundleId: 1380411
+url: https://n3wsandnumb3rs.shinyapps.io/SEG_heatmap/
+when: 1526641489.23026
+asMultiple: FALSE
+asStatic: FALSE

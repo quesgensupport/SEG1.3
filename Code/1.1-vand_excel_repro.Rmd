@@ -1,0 +1,453 @@
+---
+title: "Vanderbuilt Excel Reproduction - Notebook"
+author: "Martin Frigaard"
+date: "2018-04-12"
+date: "`r Sys.Date()`"
+output:
+  rmdformats::readthedown:
+    highlight: kate
+---
+
+
+```{r knitr_init, echo=FALSE, cache=FALSE}
+require(knitr)
+require(rmdformats)
+require(magrittr)
+require(tidyverse)
+## Global options
+options(max.print = "75")
+opts_chunk$set(size = "small",
+               prompt = FALSE,
+               tidy = FALSE,
+               message = FALSE,
+               warning = FALSE)
+opts_knit$set(width = 75)
+# file time
+file_time <- lubridate::now(tzone = "US/Pacific-New") %>% 
+    as.character.Date() 
+# what is the file title? ----
+file_title <- c("vand excel repro")
+# what is the file version? ----
+file_version <- c("1.1") # file version 1.1
+```
+
+**PACKAGES:**  
+
+```{r packages, message=FALSE, warning=FALSE}
+library(dplyr) # Data wrangling, glimpse(50) and tbl_df().
+library(ggplot2) # Visualise data.
+library(lubridate) # Dates and time.
+library(readr) # Efficient reading of CSV data.
+library(stringr) # String operations.
+library(tibble) # Convert row names into a column.
+library(tidyr) # Prepare a tidy dataset, gather().
+library(magrittr) # Pipes %>%, %T>% and equals(), extract().
+library(tidyverse) # all tidyverse packages
+library(mosaic) # favstats and other summary functions
+library(fs) # file management functions
+library(shiny) # apps 
+```
+
+**File name:**
+
+```{r create_file_name, echo=FALSE}
+file_title <- stringr::str_to_lower(
+    stringr::str_replace_all(file_title, "\\W", "_"))
+file_name <- paste0(file_version,"-",file_title, ".Rmd")
+file_name
+```
+
+**HEADER:**  
+
+
+* **File name:** `r file_name`
+* **Created date:** `r Sys.Date()`    
+* **R version:** `r R.version.string`  
+
+# Motivation
+
+This notebook covers the reproduction of the analyses sent to Vanderbilt in the following document:
+
+## Load custom function
+
+This will come in handy for summarizing data 
+
+```{r num_vars_summ}
+# num_vars_summ function ----------------------------------------------
+# this summarizes a numerical variable (n, na(missing, mean, median, sd,
+# variance, min, max, and se) when given a data frame or tibble and
+# variable: q14_rpt_fun(df, var)
+num_vars_summ <- function(df, expr) {
+  expr <- enquo(expr) # turns expr into a quosure
+  summarise(df,
+          n = sum((!is.na(!!expr))), # non-missing
+          na = sum((is.na(!!expr))), # missing
+          mean = mean(!!expr, na.rm = TRUE), # unquotes mean()
+          median = median(!!expr, na.rm = TRUE), # unquotes median()
+          sd = sd(!!expr, na.rm = TRUE), # unquotes sd()
+          variance = var(!!expr, na.rm = TRUE), # unquotes var()
+          min = min(!!expr, na.rm = TRUE), # unquotes min()
+          max = max(!!expr, na.rm = TRUE), # unquotes max()
+          se = sd/sqrt(n)) # standard error
+}
+```
+
+
+`Excel/VanderbiltUpdated.xlsx`
+
+```{r VanderbiltUpdated.xlsx}
+fs::dir_ls("Excel")
+```
+
+This file has four tabs: SEG Output, Surveillance Study Criteria, MARD, ModBA Plot
+
+## SEG Output
+
+This tab contains the image from the previous script that re-creates the heat map, and the data used to re-create this image. 
+
+### Data for SEG Output
+
+This will load the data from the SEG output
+
+```{r load_data}
+# fs::dir_ls("Data/Raw") %>% writeLines()
+RiskPairData <- read_csv("Data/Raw/RiskPairData.csv")
+LookUpRiskCat <- read_csv("Data/Raw/LookUpRiskCat.csv")
+SampleData <- read_csv("Data/Raw/SampleData.csv")
+```
+
+```{r RiskPairData}
+RiskPairData %>% glimpse(60)
+```
+
+```{r SampleData}
+SampleData %>% glimpse(60)
+```
+
+```{r LookUpRiskCat}
+LookUpRiskCat %>% glimpse(60)
+```
+
+## Rename `BMP_result` to `REF` and `POC_Result` to `BGM`
+
+This will change the current `BMP_Result` (which stands for Basic Metabolic Panel) to `REF`.
+
+```{r wrangle}
+# rename POC_Result, BMP_Result
+# SampleData <- SampleData %>% dplyr::rename(
+#     BGM = POC_Result,
+#     REF = BMP_Result)
+
+# Pair type variables ----
+SampleData <- SampleData %>% 
+                dplyr::mutate(
+                    pairtype_gt600 = dplyr::case_when(
+                                    REF > 600 ~ "BMP > 600",
+                                    TRUE ~ NA_character_),
+                    pairtype_lt21 = dplyr::case_when(
+                                    REF < 21 ~ "BMP < 21",
+                                    TRUE ~ NA_character_),
+                    pair_type = dplyr::case_when(
+                                    BGM < REF ~ "POC < BMP",
+                                    BGM == REF ~ "POC = BMP",
+                                    BGM > REF ~ "POC > BMP",
+                                    TRUE ~ NA_character_))
+
+
+
+
+# These counts are below (I use the original data set `SampleData`)
+# this is a static output for pair type--include knitr
+## 1.) Pair Type Table == == == ==  ----
+PairType <- SampleData %>% 
+    dplyr::count(pair_type)
+## 2.) Pair Type Greater than 600 == == == ==  ----
+PairTypeGT600 <- SampleData %>% 
+    dplyr::count(pairtype_gt600) %>% 
+    dplyr::rename(`REF greater than 600` = pairtype_gt600)
+## 3.) Pair Type Less than 21 == == == ==  ----
+PairTypeLT21 <- SampleData %>% 
+    dplyr::count(pairtype_lt21) %>% 
+    dplyr::rename(`REF less than 21` = pairtype_lt21)
+```
+
+## Create risk category table 
+
+```{r SEG_pair_type}
+SampleData <- SampleData %>% 
+dplyr::mutate(
+        measured = poc_result,
+        reference = ref_result,
+        seg_pair_type = 
+        dplyr::case_when( 
+            measured > 600 ~ "out of range",
+            reference > 600 ~ "out of range",
+            measured <= 20  ~ "out of range",
+            reference <= 20 ~ "out of range",
+            reference > measured ~ "BGM below ref",
+            reference < measured ~ "BGM above ref",
+            measured == reference ~ "BGM equal to ref"))
+
+```
+
+```{r RiskPairData_glimpse}
+RiskPairData %>% glimpse(60)
+```
+
+Now join the `RiskPairData` data to our `SampleData`.
+
+```{r SampleData_join_RiskPairData}
+SampleDataRiskPairData <- dplyr::inner_join(x = SampleData, 
+                   y = RiskPairData, 
+                   by = c("measured", "reference"))
+SampleDataRiskPairData %>% glimpse(75)
+```
+
+## Create `risk_cat` vector
+
+This assigns the appropriate risk category to the risk factor value. 
+
+```{r abslb_vec}
+abslb_vec <- LookUpRiskCat$abslb
+abslb_vec
+```
+
+This comes in handy for the lookup table (with `base::findInterval()` function), although not necessary.
+
+Now we will use the `findInterval()` function to create a new variable based on the `abslb_vec` levels. 
+
+```{r create_risk_cat} 
+# test ----
+SampleDataRiskPairData %>% 
+    dplyr::mutate(risk_cat = base::findInterval(x = abs_risk, # the abs_risk absolute value
+                                   vec = abslb_vec, # the vector we created
+                                   left.open = TRUE) - 1) %>% dplyr::count(risk_cat) 
+# assign ----
+SampleDataRiskPairData <- SampleDataRiskPairData %>% 
+    dplyr::mutate(risk_cat = base::findInterval(x = abs_risk, # the abs_risk absolute value
+                                   vec = abslb_vec, # the vector we created
+                                   left.open = TRUE) - 1) 
+SampleDataRiskPairData %>% 
+    group_by(risk_cat) %>% 
+    num_vars_summ(abs_risk)
+```
+
+Now give these variables a text value in `risk_cat_txt`
+
+```{r risk_cat_txt}
+# test -----
+SampleDataRiskPairData %>% 
+    dplyr::mutate(risk_cat_txt = 
+                      dplyr::case_when(abs_risk < 0.5 ~ "None",
+                                       abs_risk >= 0.5 & abs_risk <= 1 ~ "Slight, Lower", 
+                                       abs_risk > 1 & abs_risk <= 1.5 ~ "Slight, Higher", 
+                                       abs_risk > 1.5 & abs_risk <= 2.0 ~ "Moderate, Lower",
+                                       abs_risk > 2 & abs_risk <= 2.5 ~ "Moderate, Higher",
+                                       abs_risk > 2.5 & abs_risk <= 3.0 ~ "Severe, Lower",
+                                       abs_risk > 3.0 & abs_risk <= 3.5 ~ "Severe, Higher", 
+                                       abs_risk > 3.5 ~ "Extreme")) %>% 
+                    dplyr::count(risk_cat_txt)
+# assign ----
+SampleDataRiskPairData <- SampleDataRiskPairData %>% 
+    dplyr::mutate(risk_cat_txt = 
+                      dplyr::case_when(abs_risk < 0.5 ~ "None",
+                                       abs_risk >= 0.5 & abs_risk <= 1 ~ "Slight, Lower", 
+                                       abs_risk > 1 & abs_risk <= 1.5 ~ "Slight, Higher", 
+                                       abs_risk > 1.5 & abs_risk <= 2.0 ~ "Moderate, Lower",
+                                       abs_risk > 2 & abs_risk <= 2.5 ~ "Moderate, Higher",
+                                       abs_risk > 2.5 & abs_risk <= 3.0 ~ "Severe, Lower",
+                                       abs_risk > 3.0 & abs_risk <= 3.5 ~ "Severe, Higher", 
+                                       abs_risk > 3.5 ~ "Extreme"))
+```
+
+## Surveillance Study Criteria
+
+This sheet has the study criteria and breaks the table categories into *ISO Range* values. 
+
+These are defined as, 
+
+> "Difference between POC and BMP as % of BMP for BMP >100 mg/dL and in mg/dL for BMP ≤ 100 mg/dL"
+
+Assuming each category getting its percentage from the total `7857`, we need to calculate this number from the `SampleData` data frame. 
+
+```{r}
+SampleData %>% nrow()
+```
+
+I will create a `iso_diff` column between POC and BMP,
+
+```{r ISO_diff}
+# SampleData$POC_Result %>% class()
+# SampleData$BMP_Result %>% class()
+# format the BMP_Result and POC_result
+SampleData$ref_result <- as.double(SampleData$ref_result)
+SampleData$poc_result <- as.double(SampleData$poc_result)
+SampleData <- SampleData %>% 
+    dplyr::mutate(iso_diff = if_else(ref_result >= 100, # condition 1
+                                    100*abs(poc_result - ref_result)/ref_result, # TRUE 1
+                                        if_else(ref_result < 100, # 
+                                                abs(poc_result - ref_result),
+                                                        NA_real_),
+                                                            NA_real_)) # FALSE
+SampleData %>% 
+    num_vars_summ(iso_diff)
+```
+
+> What is the number of observations with an ISO range less than 5, 10, 15?
+
+If `ref` is greater than 100, then calculate % of `ref` 
+
+```{r iso_range}
+SampleData %>%
+    dplyr::mutate(
+        iso_range =
+            dplyr::case_when(iso_diff <= 5 ~ "<= 5% or 5 mg/dL",
+                      iso_diff > 5 & iso_diff <= 10 ~ "> 5 - 10% or mg/dL",
+                      iso_diff > 10 & iso_diff <= 15 ~ "> 10 - 15% or mg/dL",
+                      iso_diff > 15 & iso_diff ~ "> 15% or 15 mg/dL")) %>% count(iso_range)
+SampleData <- SampleData %>%
+    dplyr::mutate(
+        iso_range =
+            dplyr::case_when(iso_diff <= 5 ~ "<= 5% or 5 mg/dL",
+                      iso_diff > 5 & iso_diff <= 10 ~ "> 5 - 10% or mg/dL",
+                      iso_diff > 10 & iso_diff <= 15 ~ "> 10 - 15% or mg/dL",
+                      iso_diff > 15 & iso_diff ~ "> 15% or 15 mg/dL")) 
+```
+
+
+## The "Inverse of the Cumulative Binomial Distribution" (or `BINOM.INV`)
+
+The `BINOM.INV` function in Excel is used to calculate the "the smallest value for which the cumulative binomial distribution is greater than or equal to a criterion value."
+
+Failures will be in the `>=15% or 15 mg/dL` category of `ISO_range`--subtract from total to get success. 
+
+```{r successes_trials}
+successes <- nrow(SampleData) - base::nrow(dplyr::filter(SampleData, iso_range == "> 15% or 15 mg/dL"))
+successes
+trials <- nrow(SampleData)
+trials
+# Trials could also be the number of rows in the total data frame 
+# (with out of range values)
+```
+
+Then a `prob` argument is applied, or the probability of a success on each trial. 
+
+```{r prob}
+prob <- 0.95
+```
+
+Finally an Alpha or `criterion` value
+
+```{r criterion}
+criterion <- 0.05
+```
+
+```{r binom.test}
+binom.test(x = successes, 
+           n = trials, 
+           p = prob, 
+           conf.level = 0.95)
+```
+
+## MARD
+
+Graph two quantities: 
+
+`POC - REF / REF` -> call this `rel_diff`
+
+`|rel_diff|` -> call this `abs_rel_diff`
+
+
+```{r create_rel_diff_Summary}
+SampleData <- SampleData %>% 
+    mutate(rel_diff = (poc_result - ref_result)/ref_result,
+           abs_rel_diff = abs(rel_diff))
+Summary <- tribble(
+             ~`Total`,                 ~`Bias`,                     ~`MARD`,                  ~`CV`, 
+       nrow(SampleData), mean(SampleData$rel_diff), mean(SampleData$abs_rel_diff),  sd(SampleData$rel_diff))
+knitr::kable(Summary)
+```
+
+> adjust digits!
+
+Lower and upper bound from excel!
+
+Bias-1.96*sd
+Bias+1.96*sd
+
+```{r add_bias_to_Summary}
+Summary <- Summary %>% 
+    add_column(`Lower Limit` = Summary$Bias - 1.96*Summary$CV)
+Summary <- Summary %>% 
+    add_column(`Upper Limit` = Summary$Bias + 1.96*Summary$CV)
+Summary
+```
+
+## Add the squared relative difference (`sq_rel_diff`) to data frame
+
+```{r sq_rel_diff}
+SampleData <- SampleData %>% 
+    mutate(sq_rel_diff = rel_diff^2)
+```
+
+## Bland Altman Plot (modified)
+
+This plot needs the scales adjusted, and the Bland-Altman ranges set up from the tibble below. 
+
+```{r}
+SampleData %>% 
+    ggplot(aes(x = ref_result,
+               y = rel_diff)) +
+    geom_point()
+```
+
+### Create the `BlandALtRef`
+
+Create the modified Bland-altman plot range reference values. 
+
+```{r BlandALtRef}
+BlandALtRef <- tribble(
+~`Ref`,	~`UB`,	~`LB`,
+20.00,	0.750,	-0.750,
+30.00,  0.500,	-0.500,
+40.00,  0.375,	-0.375,
+50.00,	0.300,	-0.300,
+60.00,	0.250,	-0.250,
+70.00,	0.214,	-0.214,
+90.00,	0.167,	-0.167,
+100.00,	0.150,	-0.150,
+400.00,	0.150,	-0.150,
+450.00,	0.150,	-0.150,
+500.00,	0.150,	-0.150
+)
+BlandALtRef
+```
+
+```{r}
+library(blandr)
+# Generates two random measurements
+measurement1 <- rnorm(100)
+measurement2 <- rnorm(100)
+
+# Generates a ggplot
+# Do note the ggplot function wasn't meant to be used on it's own
+# and is generally called via the bland.altman.display.and.draw function
+
+
+# Passes data to the blandr.statistics function to generate Bland-Altman statistics
+statistics.results <- blandr.statistics(measurement1, measurement2)
+
+# Generates a ggplot, with no optional arguments
+blandr::blandr.plot.ggplot(statistics.results)
+
+# Generates a ggplot, with title changed
+blandr.ggplot(statistics.results , plotTitle = "Bland-Altman example plot" )
+
+# Generates a ggplot, with title changed, and confidence intervals off
+blandr.ggplot(statistics.results , plotTitle = "Bland-Altman example plot" ,
+ciDisplay = FALSE , ciShading = FALSE )
+```
+
+
+
+
