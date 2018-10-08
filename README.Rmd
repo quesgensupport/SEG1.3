@@ -1,9 +1,8 @@
 ---
-title: "SEG Shiny Heatmap (phase 1 (version 1.3))"
+title: "SEG Shiny Heatmap (version 1.3)"
 author: "Martin Frigaard"
 date: "`r Sys.Date()`"
 output: github_document
-always_allow_html: yes
 ---
 
 ```{r setup, include=FALSE}
@@ -21,7 +20,8 @@ knitr::opts_chunk$set(
   tidy = FALSE,
   comment = NA,
   message = TRUE,
-  warning = TRUE
+  warning = TRUE,
+  error = FALSE
 )
 opts_knit$set(width = 75)
 library(dplyr) # Data wrangling, glimpse(50) and tbl_df().
@@ -48,35 +48,24 @@ library(datapasta) # for pasting tibbles
 
 # Objective
 
-Provide the background documentation and code for the Shiny SEG app. This is currently version 1.5.1. The major changes to this app have been documented below. 
+Provide the background documentation and code for the Shiny SEG app. This is currently version 1.3. 
 
 ## News for Version 1.3!!
 
 Major changes to this version include:
 
--Variables to values.
+- replaced `heatmap` with `SEG`
 
--Added support email.
+- added support email
 
--Replaced heatmap with SEG.
 
-- The font in the colored tables has been changed so it is easier to read. 
+## To do 
 
-- include text values for `risk_cat_txt` in Risk Table 2
+- fix PDF download
 
-- add `15-20` and `20+` to the iso range table.   
-
-- add plain language interpretation of MARD2 table beyond 'models indicate'  
-
-- display first ten rows (instead of the option to view the entire data set) 
+- reorder the summary table
 
 ***
-
-## To do
-
-- Fix pdf download
-
--Reorder summary table
 
 ## 0.1 - Instructions table tab
 
@@ -97,11 +86,6 @@ This text is included on the instructions tab:
 ## 0.2 - Summary tables tab
 
 These tables are from the Vanderbilt excel file `VanderbiltWithMetabolic-2018-06-11.xlsx`. The first is the summary pair type table. 
-
-```{r Excel}
-# writeLines(fs::dir_ls("./Excel"))
-```
-
 
 > The Surveillance Error Grid Analysis Tool Output:
 > BGM = Blood Glucose Monitor
@@ -154,7 +138,7 @@ NewRiskGrades <- tibble::tribble(
 
 These are colored using the following formats. 
 
-```{r NewRiskGrades_color}
+```{r NewRiskGrades_color, results='hide', eval=FALSE}
 NewRiskGrades %>%
     DT::datatable(.,options = list(lengthChange = FALSE, 
                              dom = 't', 
@@ -189,9 +173,9 @@ SEGRiskCategoryTable4 <- tibble::tribble(
 SEGRiskCategoryTable4
 ```
 
-These colors were added the larger risk category table in version 1.5.1
+These colors were added the larger risk category table in version 1.3
 
-```{r SEGRiskCategoryTable4_color}
+```{r SEGRiskCategoryTable4_color, results='hide', eval=FALSE}
 library(DT)
 SEGRiskCategoryTable4 %>%
   datatable(.,options = list(lengthChange = FALSE, 
@@ -272,7 +256,7 @@ github_root <- "https://raw.githubusercontent.com/"
 # 1.0 upload AppRiskPairData.csv from github  ---- ---- ---- ----
 app_riskpair_repo <- "mjfrigaard/SEG_shiny/master/Data/AppRiskPairData.csv"
 RiskPairData <- read_csv(paste0(github_root, app_riskpair_repo))
-RiskPairData %>% dataShape()
+RiskPairData %>% dplyr::glimpse(78)
 # this is what the data frame should look like:
 # Observations: 361201
 # Variables: 5
@@ -291,7 +275,7 @@ This uploads a wrangled data set into the app for a look-up table. To see what w
 # 1.1 load the AppLookUpRiskCat.csv from github  ---- ---- ---- ---- ----
 app_lookup_repo <- "mjfrigaard/SEG_shiny/master/Data/AppLookUpRiskCat.csv"
 LookUpRiskCat <- read_csv(paste0(github_root, app_lookup_repo))
-LookUpRiskCat %>% dataShape()
+LookUpRiskCat %>% dplyr::glimpse(78)
 # this is what the data frame should look like:
 # Observations: 8
 # Variables: 3
@@ -307,9 +291,9 @@ This loads the full sample data file from Vanderbilt. There are 7857 observation
 
 ```{r SampleData}
 # 1.20 import full sample data set from github ---- ---- ---- ---- ----
-vanderbilt_repo <- "mjfrigaard/SEG_shiny/master/Data/VanderbiltComplete.csv"
-SampleData <- read_csv(paste0(github_root, vanderbilt_repo))
-SampleData %>% dataShape()
+full_sample_repo <- "mjfrigaard/SEG_shiny/master/Data/FullSampleData.csv"
+SampleData <- read_csv(paste0(github_root, full_sample_repo))
+SampleData %>% dplyr::glimpse(78)
 # Observations: 7857
 # Variables: 2
 ```
@@ -321,12 +305,13 @@ Now export the test data to the `app_data` folder. There are `3000` observations
 - https://github.com/mjfrigaard/SEG_shiny/tree/master/Data
 
 ```{r AppTestData}
-app_data_path <- "Data/"
+app_data_path <- "Data/app_data/"
 # 1.4.1 create test data frame to export ----
 AppTestData <- SampleData %>% sample_n(., size = 3000)
 write_csv(as_data_frame(AppTestData), path = paste0(
   app_data_path,
   "AppTestData",
+  timeStamper(),
   ".csv"
 ))
 # verify
@@ -354,7 +339,7 @@ To start with, we will upload the complete data we will use to make sure the wra
 # writeLines(fs::dir_ls(app_data_path))
 vanderbilt_repo <- "mjfrigaard/SEG_shiny/master/Data/VanderbiltComplete.csv"
 SampMeasData <- read_csv(paste0(github_root, vanderbilt_repo))
-SampMeasData %>% dataShape()
+SampMeasData %>% dplyr::glimpse(78)
 # Observations: 9891
 # Variables: 2
 ```
@@ -472,10 +457,6 @@ PairTypeTable
 
 Now the numbers look identical to the Excel table in the `VanderbiltWithMetabolic-2018-06-11.xlsx` found below:
 
-```{r 2.4.3_VanderbiltWithMetabolic-2018-06-11.xlsx}
-# fs::dir_ls("Excel", regexp = "Metab")
-```
-
 I can use a trick from `datapasta` to compare these two tables. 
 
 ```{r 2.4.4_ExcelPairType}
@@ -507,7 +488,7 @@ SampMeasData <- inner_join(
   y = RiskPairData,
   by = c("BGM", "REF")
 )
-SampMeasData %>% dataShape()
+SampMeasData %>% dplyr::glimpse(78)
 ```
 
 This what you should see. 
@@ -554,7 +535,7 @@ SampMeasData <- dplyr::inner_join(SampMeasData,
   y = LookUpRiskCat, # inner join to look-up
   by = "risk_cat"
 )
-SampMeasData %>% dataShape()
+SampMeasData %>% dplyr::glimpse(78)
 ```
 
 This creates a data frame with 9868 observations and 11 variables. 
@@ -619,7 +600,7 @@ This section recreates the summary statistics in the excel sheet sent to Vanderb
 
 ```{r 3.0_CALCULATE_SUMMARY_STATS}
 # 3 - CALCULATE SUMMARY STATS ---- ---- ---- ----
-SampMeasData %>% dataShape()
+SampMeasData %>% dplyr::glimpse(78)
 # Observations: 9868
 # Variables: 12
 # Class(es):  tbl_df; tbl; data.frame
@@ -904,32 +885,31 @@ PairTypeTable1
 Now we can test this function with some sample data drawn from the github repo. 
 
 ```{r 4.2.2_test_data_pairtypeTable}
-github_root <- "https://raw.githubusercontent.com/"
-vanderbilt_repo <- "mjfrigaard/SEG_shiny/master/Data/VanderbiltComplete.csv"
-SampleData <- read_csv(paste0(github_root, vanderbilt_repo))
+full_sample_repo <- "mjfrigaard/SEG_shiny/master/Data/FullSampleData.csv"
+SampleData <- read_csv(paste0(github_root, full_sample_repo))
 # 4.2.3 create data frame to test prepare_csv() ----
 AppTestDataSmall <- SampleData %>% sample_n(., size = 1000)
 write_csv(
   as_data_frame(AppTestDataSmall),
-  "Data/AppTestDataSmall.csv"
+  "Data/app_data/AppTestDataSmall.csv"
 )
 AppTestDataMed <- SampleData %>% sample_n(., size = 2000)
 write_csv(
   as_data_frame(AppTestDataMed),
-  "Data/AppTestDataMed.csv"
+  "Data/app_data/AppTestDataMed.csv"
 )
 AppTestDataBig <- SampleData %>% sample_n(., size = 3000)
 write_csv(
   as_data_frame(AppTestDataBig),
-  "Data/AppTestDataBig.csv"
+  "Data/app_data/AppTestDataBig.csv"
 )
 # Now test this with three different size data frames:
 # 4.2.4 test prepare_csv with small data set ----
-pairtypeTable("Data/AppTestDataSmall.csv")
+pairtypeTable("Data/app_data/AppTestDataSmall.csv")
 # 4.2.5 test prepare_csv with med data set ----
-pairtypeTable("Data/AppTestDataMed.csv")
+pairtypeTable("Data/app_data/AppTestDataMed.csv")
 # 4.2.6 test prepare_csv with big data set ----
-pairtypeTable("Data/AppTestDataBig.csv")
+pairtypeTable("Data/app_data/AppTestDataBig.csv")
 ```
 
 
@@ -952,6 +932,7 @@ RiskPairData <- read_csv(paste0(github_root, riskpair_repo))
 # 4.3.3 create absolute value of RiskFactor in RiskPairData  ---- ---- ----
 RiskPairData <- RiskPairData %>%
   dplyr::mutate(abs_risk = abs(RiskFactor))
+# RiskPairData %>% glimpse()
 # 4.3.4 reorganize columns in RiskPairData  ---- ---- ---- ----
 RiskPairData <- RiskPairData %>%
   dplyr::select(
@@ -1064,20 +1045,11 @@ segTable <- function(file) {
       ), # F1
       iso_range = # # 4.3.16 create iso range variable ----
       dplyr::case_when(
-          # # A tibble: 5 x 2
-          #      ID iso_range          
-          #   <int> <chr>              
-          # 1     1 <= 5% or 5 mg/dL   
-          # 2     2 > 5 - 10% or mg/dL 
-          # 3     3 > 10 - 15% or mg/dL
-          # 4     4 > 15 - 20% mg/dL   
-          # 5     5 > 20% or 20 mg/dL  
         iso_diff <= 5 ~ "<= 5% or 5 mg/dL",
         iso_diff > 5 & iso_diff <= 10 ~ "> 5 - 10% or mg/dL",
         iso_diff > 10 & iso_diff <= 15 ~ "> 10 - 15% or mg/dL",
-        iso_diff > 15 & iso_diff <= 20 ~ "> 15 - 20% mg/dL",
-        iso_diff > 20 ~ "> 20% or 20 mg/dL"),
-      
+        iso_diff > 15 & iso_diff ~ "> 15% or 15 mg/dL"
+      ),
       risk_grade = dplyr::case_when(
         abs_risk >= 0.0 & abs_risk < 0.5 ~ "A",
         abs_risk >= 0.5 & abs_risk < 1.0 ~ "B",
@@ -1097,6 +1069,8 @@ segTable <- function(file) {
 ```
 
 
+
+
 Test our new function on the `VandComp` data frame by reloading the Vanderbilt data frame and testing the function. 
 
 ```{r 4.3.18_test_segTable_on_VanderbiltComplete}
@@ -1110,16 +1084,15 @@ segTable(paste0(github_root, vanderbilt_repo)) %>% glimpse(78)
 Now we can test this function with some sample data drawn from the github repo. 
 
 ```{r 4.4.1_test_data_for_segTable}
-github_root <- "https://raw.githubusercontent.com/"
-vanderbilt_repo <- "mjfrigaard/SEG_shiny/master/Data/VanderbiltComplete.csv"
-SampleData <- read_csv(paste0(github_root, vanderbilt_repo))
-app_data_path <- "Data/"
+full_sample_repo <- "mjfrigaard/SEG_shiny/master/Data/FullSampleData.csv"
+SampleData <- read_csv(paste0(github_root, full_sample_repo))
+app_data_path <- "Data/app_data/"
 # 4.4.2 create data frame to test
 AppTestDataSmall <- SampleData %>% sample_n(., size = 1000)
 write_csv(as_data_frame(AppTestDataSmall), paste0(
   app_data_path,
   "AppTestDataSmall",
-  # timeStamper(),
+  timeStamper(),
   ".csv"
 ))
 
@@ -1127,7 +1100,7 @@ AppTestDataMed <- SampleData %>% sample_n(., size = 2000)
 write_csv(as_data_frame(AppTestDataMed), paste0(
   app_data_path,
   "AppTestDataMed",
-  # timeStamper(),
+  timeStamper(),
   ".csv"
 ))
 
@@ -1135,7 +1108,7 @@ AppTestDataBig <- SampleData %>% sample_n(., size = 3000)
 write_csv(as_data_frame(AppTestDataBig), paste0(
   app_data_path,
   "AppTestDataBig",
-  # timeStamper(),
+  timeStamper(),
   ".csv"
 ))
 
@@ -1145,9 +1118,9 @@ write_csv(as_data_frame(AppTestDataBig), paste0(
 Now test this with three different size data frames. 
 
 ```{r 4.4.2_test_segTable}
-segTable("Data/AppTestDataSmall.csv") %>% dplyr::glimpse(78)
-segTable("Data/AppTestDataMed.csv") %>% dplyr::glimpse(78)
-segTable("Data/AppTestDataBig.csv") %>% dplyr::glimpse(78)
+segTable("Data/app_data/AppTestDataSmall.csv") %>% dplyr::glimpse(78)
+segTable("Data/app_data/AppTestDataMed.csv") %>% dplyr::glimpse(78)
+segTable("Data/app_data/AppTestDataBig.csv") %>% dplyr::glimpse(78)
 ```
 
 
@@ -1155,16 +1128,15 @@ segTable("Data/AppTestDataBig.csv") %>% dplyr::glimpse(78)
 
 This creates the objects from the calculations above. The first tables are created from the `pairtypeTable()` function, and the rest of the tables with be created with the data created below.
 
-
 I want to create this with the data I've imported (The `VanderbiltComplete` data set).
 
 ```{r 4.4.2_create_new_SampMeasData}
 github_root <- "https://raw.githubusercontent.com/"
 vanderbilt_repo <- "mjfrigaard/SEG_shiny/master/Data/VanderbiltComplete.csv"
 SampMeasData <- segTable(paste0(github_root, vanderbilt_repo))
-SampMeasData %>% dataShape()
+SampMeasData %>% dplyr::glimpse(78)
 # Observations: 9868
-# Variables: 17
+# Variables: 19
 ```
 
 This should create the identical table from the Excel worksheet. 
@@ -1311,6 +1283,10 @@ RiskGradeTable3 <- SampMeasData %>%
                 `Risk Grade` = risk_grade,
                 `Number of Pairs` = n,
                 Percent)
+```
+
+
+```{r , results='hide', eval=FALSE}
 RiskGradeTable3 %>%
     DT::datatable(.,options = list(lengthChange = FALSE, 
                              dom = 't', 
@@ -1347,7 +1323,7 @@ lkpSEGRiskCatTbl4
 
 Add color. 
 
-```{r 4.4.6_SEGRiskCategoryTable4}
+```{r 4.4.6_SEGRiskCategoryTable4, results='hide', eval=FALSE}
 # 4.4.6 SEGRiskCategoryTable4 ----- ----- ---- ----
 SampMeasData %>%
   dplyr::count(risk_cat_txt, sort = TRUE) %>%
@@ -1397,10 +1373,6 @@ ISORangeTable5 <- SampMeasData %>%
 ISORangeTable5
 ```
 
-```{r}
-SampMeasData %>% dplyr::count(iso_range)
-```
-
 
 Create look-up table
 
@@ -1434,20 +1406,28 @@ ISORangeTable5 <- SampMeasData %>%
                 `ISO range` = iso_range,
                 N = n,
                 Percent)
-ISORangeTable5
 ```
 
 This is the final table before the `binomialTable` function. 
 
 ```{r ISORangeTable5}
-knitr::kable(ISORangeTable5)
+ISORangeTable5
 ```
 
-First I need to get the count from the `iso_diff` variable
 
-```{r 4.4.8_BinomialTest6_CompliantPairs_count}
+```{r test_.name_repair, results='hide', eval=FALSE}
+nrow(SampMeasData) - base::nrow(dplyr::filter(SampMeasData,
+  iso_range == "> 15% or 15 mg/dL"
+)) %>% 
+  tibble::as_tibble(.name_repair = "syntactic") %>% 
+  dplyr::rename(`Compliant Pairs` = 'value')
+```
+
+
+
+```{r 4.4.8_BinomialTest6, error=TRUE}
 CompliantPairs <- nrow(SampMeasData) - base::nrow(dplyr::filter(
-    SampMeasData, iso_diff > 15)) %>%  
+    SampMeasData, iso_diff > 15)) %>%
   tibble(
     `Compliant Pairs` = .)
 # CompliantPairs
@@ -1467,7 +1447,7 @@ df_size <- nrow(SampMeasData)
 qbinom_tibble <- qbinom(
     p = p_value,
     size = df_size,
-    prob = prb) %>% 
+    prob = prb) %>%
     tibble(`value` = .) %>%
     # clean up this variable in the tibble for display
     dplyr::rename(`Lower Bound for Acceptance` = value)
@@ -1480,7 +1460,7 @@ QbinomTable <- qbinom_tibble %>%
         1
       ), "%")
   )
-BinomialTest6 <- dplyr::bind_cols(CompliantPairs, QbinomTable)
+BinomialTest6 <- bind_cols(CompliantPairs, QbinomTable)
 BinomialTest6 <- BinomialTest6 %>% dplyr::mutate(
   Result =
     if_else(condition = `Compliant Pairs` < `Lower Bound for Acceptance`,
@@ -1521,14 +1501,13 @@ All but the `BinomialTest` table will work in app with `isolate()` function. The
 
 This should fix the `binomialTable()` function and remove the error. 
 
-```{r 4.5.0_binomialTable}
-# 4.5.0 binomialTable ---- ----  ---- ----  ---- ----  ---- ----
+```{r binomialTable}
 binomialTable <- function(dataset) {
   
-  # dataset <- segTable(dat)
+  #   dataset <- segTable(dataset)
   
-  CompliantPairs <- nrow(dataset) - base::nrow(dplyr::filter(
-    dataset, iso_diff > 15)) %>%  
+CompliantPairs <- nrow(dataset) - base::nrow(dplyr::filter(
+    dataset, iso_diff > 15)) %>%
   tibble(
     `Compliant Pairs` = .)
 # CompliantPairs
@@ -1548,7 +1527,7 @@ df_size <- nrow(dataset)
 qbinom_tibble <- qbinom(
     p = p_value,
     size = df_size,
-    prob = prb) %>% 
+    prob = prb) %>%
     tibble(`value` = .) %>%
     # clean up this variable in the tibble for display
     dplyr::rename(`Lower Bound for Acceptance` = value)
@@ -1583,14 +1562,15 @@ return(BinomialTest6)
 }
 ```
 
+
 Now test the new function. 
 
 ```{r 4.2.0_test_binomialTable}
 # there is a data file in the Data folder that this function will clean
-binomialTable(dataset = SampMeasData)
+binomialTable(SampMeasData)
 ```
 
-***NOTE*** the call to `dataset <- segTable(dat)` needs to be added to the top of this function to ensure the reactive dataset have been cleaned identically to the `SampMeasData`
+
 
 ## PART 5 - Heatmap 
 
@@ -1751,7 +1731,7 @@ heat_map_1.0
 
 Export the file as .png
 
-```{r ggsave_heat_map_1.0, results='hide', echo=FALSE}
+```{r ggsave_heat_map_1.0, message=FALSE}
 # 5.12 export plot as heat_map_1.0 ---- ---- ---- ---- ---- ---- ---- ----
 heat_map_1.0 + 
    theme(plot.title = element_text(size = 20),
@@ -1767,12 +1747,7 @@ ggsave(
     "Image/", # location
     "heat_map_1.0-", # file name
     noquote(Sys.Date()), # date
-    ".png"
-  ), # extension
-  width = 9,
-  height = 6,
-  units = c("in")
-)
+    ".png"))
 ```
 
 
@@ -1782,7 +1757,7 @@ Load data and functions.
 
 ```{r source_prepare_csv.R}
 # fs::dir_ls("Data/app_data")
-SampMeasDataBig <- segTable("Data/AppTestDataBig.csv")
+SampMeasDataBig <- segTable("Data/app_data/AppTestDataBig.csv")
 SampMeasDataBig %>% glimpse(78)
 ```
 
@@ -1790,7 +1765,7 @@ The `SampMeasDataBig` file represents what the data will look like in the app wh
 
 ![mod_bland_altman.png](Image/mod_bland_altman.png)
 
-I will create the modified bland-altman plot above with `ggplot2`.
+I will create the modified bland-altman plot above with ggplot2.
 
 These data add the reference lines to the plot. 
 
