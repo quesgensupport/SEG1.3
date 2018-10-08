@@ -1,12 +1,12 @@
-SEG Shiny Heatmap (phase 1)
+SEG Shiny Heatmap (phase 1 (version 1.3))
 ================
 Martin Frigaard
-2018-08-22
+2018-10-08
 
 **HEADER:**
 
-  - **Created date:** 2018-08-22  
-  - **R version:** R version 3.5.0 (2018-04-23)
+  - **Created date:** 2018-10-08  
+  - **R version:** R version 3.5.1 (2018-07-02)
 
 -----
 
@@ -16,9 +16,15 @@ Provide the background documentation and code for the Shiny SEG app.
 This is currently version 1.5.1. The major changes to this app have been
 documented below.
 
-## News for Version 1.5.1\!\!
+## News for Version 1.3\!\!
 
 Major changes to this version include:
+
+\-Variables to values.
+
+\-Added support email.
+
+\-Replaced heatmap with SEG.
 
   - The font in the colored tables has been changed so it is easier to
     read.
@@ -34,6 +40,12 @@ Major changes to this version include:
     data set)
 
 -----
+
+## To do
+
+  - Fix pdf download
+
+\-Reorder summary table
 
 ## 0.1 - Instructions table tab
 
@@ -167,7 +179,17 @@ NewRiskGrades %>%
                                 "red")))
 ```
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/NewRiskGrades_color-1.png)<!-- -->
+    PhantomJS not found. You can install it with webshot::install_phantomjs(). If it is installed, please make sure the phantomjs executable can be found via the PATH variable.
+
+<!--html_preserve-->
+
+<div id="htmlwidget-1e7e7ca5c92c8788c6d5" class="datatables html-widget" style="width:100%;height:auto;">
+
+</div>
+
+<script type="application/json" data-for="htmlwidget-1e7e7ca5c92c8788c6d5">{"x":{"filter":"none","data":[["1","2","3","4","5"],[1,2,3,4,5],["A","B","C","D","E"],[9474,294,79,21,0],["96.00%","3.00%","0.80%","0.20%","0.00%"],["0 - 0.5","&gt; 0.5 - 1.0","&gt; 1.0 - 2.0","&gt; 2.0 - 3.0","&gt; 3.0"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>ID<\/th>\n      <th>Risk.Grade<\/th>\n      <th>N<\/th>\n      <th>Percent<\/th>\n      <th>REF<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"lengthChange":false,"dom":"t","rownames":true,"columnDefs":[{"className":"dt-right","targets":[1,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data) {\nvar value=data[1]; $(row).css({'background-color':value == '1' ? 'limegreen' : value == '2' ? 'greenyellow' : value == '3' ? 'yellow' : value == '4' ? 'orange' : value == '5' ? 'red' : ''});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+
+<!--/html_preserve-->
 
   - The following risk category table (`SEGRiskCategoryTable4`) was
     produced:
@@ -234,7 +256,15 @@ SEGRiskCategoryTable4 %>%
                                    "#FF4500", "#FF0000")))
 ```
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/SEGRiskCategoryTable4_color-1.png)<!-- -->
+<!--html_preserve-->
+
+<div id="htmlwidget-1f8ca06f4d346fc51ee7" class="datatables html-widget" style="width:100%;height:auto;">
+
+</div>
+
+<script type="application/json" data-for="htmlwidget-1f8ca06f4d346fc51ee7">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8"],[0,1,2,3,4,5,6,7],["None 0 - 0.5*","Slight, Lower &gt; 0.5 - 1.0","Slight, Higher &gt;1.0 - 1.5","Moderate, Lower &gt;1.5-2.0","Moderate Higher, &gt;2.0- 2.5","Severe, Lower &gt; 2.5-3.0","Severe, Higher &lt;3.0-3.5","Extreme&gt; 3.5"],[9474,294,55,24,11,10,0,0],["96.00%","3.00%","0.60%","0.20%","0.10%","0.10%","0.00%","0.00%"],["0.0 - 0.5","&gt;0.5 - 1.0","&gt;1.0 - 1.5","&gt;1.5 - 2.0","&gt;2.0 - 2.5","&gt;2.5 - 3.0","&gt;3.0 - 3.5","&gt; 3.5"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>ROW<\/th>\n      <th>SEG.Risk.Category<\/th>\n      <th>Number.of.Pairs<\/th>\n      <th>Percent.Of.Pairs<\/th>\n      <th>Risk.Factor.Range<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"lengthChange":false,"dom":"t","rownames":false,"columnDefs":[{"className":"dt-right","targets":[1,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data) {\nvar value=data[1]; $(row).css({'background-color':value == '0' ? '#00EE00' : value == '1' ? '#ADFF2F' : value == '2' ? '#FFFF00' : value == '3' ? '#FFD700' : value == '4' ? '#FFA500' : value == '5' ? '#EE7600' : value == '6' ? '#FF4500' : value == '7' ? '#FF0000' : ''});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+
+<!--/html_preserve-->
 
   - The following text was added under this table:
 
@@ -311,35 +341,35 @@ source("Code/my_r_funs_v1.4.R", echo = TRUE)
 
 ``` 
 
-# R>require(tidyverse)
+> require(tidyverse)
 
-# R>require(magrittr)
+> require(magrittr)
 
-# R>headTail = function(d, n = 5) rbind(head(x = d, n = n), 
+> headTail = function(d, n = 5) rbind(head(x = d, n = n), 
 +     tail(x = d, n = n))
 
-# R>headSmall = function(d) d[1:5, 1:5]
+> headSmall = function(d) d[1:5, 1:5]
 
-# R>sectionLabel <- function(..., pad = "-") {
+> sectionLabel <- function(..., pad = "-") {
 +     title <- paste0(...)
 +     width <- getOption("width") - nchar(title) - 10
-+     cat("# > ", titl .... [TRUNCATED] 
++     cat("# > ", title, .... [TRUNCATED] 
 
-# R>sectionLabel("load functions")
+> sectionLabel("load functions")
 # > load functions ---------------------------------------------------
 
-# R>numvarSum <- function(df, expr) {
+> numvarSum <- function(df, expr) {
 +     expr <- enquo(expr)
 +     summarise(df, n = sum((!is.na(!!expr))), na = sum((is.na(!!expr))), 
-+         m .... [TRUNCATED] 
++         mea .... [TRUNCATED] 
 
-# R>dataShape <- function(df) {
+> dataShape <- function(df) {
 +     obs <- nrow(df)
 +     vars <- ncol(df)
 +     class <- paste0(class(df), collapse = "; ")
-+     first_var <- base .... [TRUNCATED] 
++     first_var <- base:: .... [TRUNCATED] 
 
-# R>mtcars %>% dataShape()
+> mtcars %>% dataShape()
 Observations: 32
 Variables: 11
 Class(es):  data.frame 
@@ -348,7 +378,7 @@ Grouped: FALSE
 Top 5 & bottom 5 observations:
 # A tibble: 10 x 11
      mpg   cyl  disp    hp  drat    wt  qsec    vs    am  gear  carb
-   <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
+ * <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl> <dbl>
  1  21       6 160     110  3.9   2.62  16.5     0     1     4     4
  2  21       6 160     110  3.9   2.88  17.0     0     1     4     4
  3  22.8     4 108      93  3.85  2.32  18.6     1     1     4     1
@@ -360,26 +390,26 @@ Top 5 & bottom 5 observations:
  9  15       8 301     335  3.54  3.57  14.6     0     1     5     8
 10  21.4     4 121     109  4.11  2.78  18.6     1     1     4     2
 
-# R>timeStamper <- function(...) {
+> timeStamper <- function(...) {
 +     mytime <- stringr::str_sub(string = as.character.Date(Sys.time()), 
 +         start = 12, end = 19)
-+     myd .... [TRUNCATED] 
++     mydat .... [TRUNCATED] 
 
-# R>fileNamer <- function(..., version = "0.0", extension = ".R") {
+> fileNamer <- function(..., version = "0.0", extension = ".R") {
 +     title <- str_replace_all(string = ..., pattern = "\\W", replacement = "_")
-+ .... [TRUNCATED] 
++   .... [TRUNCATED] 
 
-# R>normVarNames <- function(vars, sep = "_") {
+> normVarNames <- function(vars, sep = "_") {
 +     if (sep == ".") 
 +         sep <- "\\."
-+     pat <- "_| |•| |,|-|:|/|&|\\.|\\?|\\[|\\]|\\{|\\}| ..." ... [TRUNCATED] 
++     pat <- "_| |•| |,|-|:|/|&|\\.|\\?|\\[|\\]|\\{|\\}|\\ ..." ... [TRUNCATED] 
 
-# R>datevarSum <- function(df, expr) {
+> datevarSum <- function(df, expr) {
 +     expr <- enquo(expr)
 +     summarise(df, min = min(!!expr, na.rm = TRUE), median = median(!!expr, 
-+       .... [TRUNCATED] 
++         .... [TRUNCATED] 
 
-# R>show_missings <- function(df) {
+> show_missings <- function(df) {
 +     n <- sum(is.na(df))
 +     cat("Missing values: ", n, "\n", sep = "")
 +     invisible(df)
@@ -407,9 +437,9 @@ RiskPairData <- read_csv(paste0(github_root, app_riskpair_repo))
 
     Parsed with column specification:
     cols(
-      RiskPairID = col_double(),
-      REF = col_double(),
-      BGM = col_double(),
+      RiskPairID = col_integer(),
+      REF = col_integer(),
+      BGM = col_integer(),
       RiskFactor = col_double(),
       abs_risk = col_double()
     )
@@ -427,7 +457,7 @@ RiskPairData %>% dataShape()
 
     # A tibble: 10 x 5
        RiskPairID   REF   BGM RiskFactor abs_risk
-            <dbl> <dbl> <dbl>      <dbl>    <dbl>
+            <int> <int> <int>      <dbl>    <dbl>
      1          1     0     0          0        0
      2          2     1     0          0        0
      3          3     2     0          0        0
@@ -464,7 +494,7 @@ LookUpRiskCat <- read_csv(paste0(github_root, app_lookup_repo))
 
     Parsed with column specification:
     cols(
-      risk_cat = col_double(),
+      risk_cat = col_integer(),
       ABSLB = col_double(),
       ABSUB = col_double()
     )
@@ -483,7 +513,7 @@ LookUpRiskCat %>% dataShape()
 ``` 
 # A tibble: 10 x 3
    risk_cat  ABSLB ABSUB
-      <dbl>  <dbl> <dbl>
+      <int>  <dbl> <dbl>
  1        0 -0.001   0.5
  2        1  0.5     1  
  3        2  1       1.5
@@ -519,8 +549,8 @@ SampleData <- read_csv(paste0(github_root, vanderbilt_repo))
 
     Parsed with column specification:
     cols(
-      BGM = col_double(),
-      REF = col_double()
+      BGM = col_integer(),
+      REF = col_integer()
     )
 
 ``` r
@@ -536,7 +566,7 @@ SampleData %>% dataShape()
 
     # A tibble: 10 x 2
          BGM   REF
-       <dbl> <dbl>
+       <int> <int>
      1   121   127
      2   212   223
      3   161   166
@@ -621,8 +651,8 @@ SampMeasData <- read_csv(paste0(github_root, vanderbilt_repo))
 
     Parsed with column specification:
     cols(
-      BGM = col_double(),
-      REF = col_double()
+      BGM = col_integer(),
+      REF = col_integer()
     )
 
 ``` r
@@ -638,7 +668,7 @@ SampMeasData %>% dataShape()
 
     # A tibble: 10 x 2
          BGM   REF
-       <dbl> <dbl>
+       <int> <int>
      1   121   127
      2   212   223
      3   161   166
@@ -748,9 +778,9 @@ SampMeasData %>% dplyr::count(ref_pair_2cat)
     # A tibble: 3 x 2
       ref_pair_2cat                             n
       <chr>                                 <int>
-    1 <NA>                                   9865
-    2 REF <21: Included in SEG Analysis         3
-    3 REF > 600: Excluded from SEG Analysis    23
+    1 REF <21: Included in SEG Analysis         3
+    2 REF > 600: Excluded from SEG Analysis    23
+    3 <NA>                                   9865
 
 ``` r
 SampMeasData %>% dplyr::count(included)
@@ -895,7 +925,7 @@ SampMeasData %>% dataShape()
 
     # A tibble: 10 x 8
          BGM   REF bgm_pair_cat ref_pair_2cat included RiskPairID RiskFactor
-       <dbl> <dbl> <chr>        <chr>         <chr>         <dbl>      <dbl>
+       <int> <int> <chr>        <chr>         <chr>         <int>      <dbl>
      1   121   127 BGM < REF    <NA>          Total i…      72849    0.00254
      2   212   223 BGM < REF    <NA>          Total i…     127636    0.0280 
      3   161   166 BGM < REF    <NA>          Total i…      96928    0      
@@ -906,7 +936,7 @@ SampMeasData %>% dataShape()
      8   121   109 BGM > REF    <NA>          Total i…      72831   -0.191  
      9   168   160 BGM > REF    <NA>          Total i…     101129   -0.137  
     10   149   187 BGM < REF    <NA>          Total i…      89737    0.725  
-    # … with 1 more variable: abs_risk <dbl>
+    # ... with 1 more variable: abs_risk <dbl>
 
 This what you should see.
 
@@ -985,7 +1015,7 @@ SampMeasData %>% dataShape()
 
     # A tibble: 10 x 11
          BGM   REF bgm_pair_cat ref_pair_2cat included RiskPairID RiskFactor
-       <dbl> <dbl> <chr>        <chr>         <chr>         <dbl>      <dbl>
+       <int> <int> <chr>        <chr>         <chr>         <int>      <dbl>
      1   121   127 BGM < REF    <NA>          Total i…      72849    0.00254
      2   212   223 BGM < REF    <NA>          Total i…     127636    0.0280 
      3   161   166 BGM < REF    <NA>          Total i…      96928    0      
@@ -996,7 +1026,7 @@ SampMeasData %>% dataShape()
      8   121   109 BGM > REF    <NA>          Total i…      72831   -0.191  
      9   168   160 BGM > REF    <NA>          Total i…     101129   -0.137  
     10   149   187 BGM < REF    <NA>          Total i…      89737    0.725  
-    # … with 4 more variables: abs_risk <dbl>, risk_cat <dbl>, ABSLB <dbl>,
+    # ... with 4 more variables: abs_risk <dbl>, risk_cat <dbl>, ABSLB <dbl>,
     #   ABSUB <dbl>
 
 This creates a data frame with 9868 observations and 11 variables.
@@ -1115,7 +1145,7 @@ SampMeasData %>% dataShape()
 
     # A tibble: 10 x 12
          BGM   REF bgm_pair_cat ref_pair_2cat included RiskPairID RiskFactor
-       <dbl> <dbl> <chr>        <chr>         <chr>         <dbl>      <dbl>
+       <dbl> <dbl> <chr>        <chr>         <chr>         <int>      <dbl>
      1   121   127 BGM < REF    <NA>          Total i…      72849    0.00254
      2   212   223 BGM < REF    <NA>          Total i…     127636    0.0280 
      3   161   166 BGM < REF    <NA>          Total i…      96928    0      
@@ -1126,7 +1156,7 @@ SampMeasData %>% dataShape()
      8   121   109 BGM > REF    <NA>          Total i…      72831   -0.191  
      9   168   160 BGM > REF    <NA>          Total i…     101129   -0.137  
     10   149   187 BGM < REF    <NA>          Total i…      89737    0.725  
-    # … with 5 more variables: abs_risk <dbl>, risk_cat <dbl>, ABSLB <dbl>,
+    # ... with 5 more variables: abs_risk <dbl>, risk_cat <dbl>, ABSLB <dbl>,
     #   ABSUB <dbl>, risk_cat_txt <chr>
 
 ``` r
@@ -1275,7 +1305,7 @@ should be:
 100 * abs(121 - 127) / 127
 ```
 
-    [1] 4.724
+    [1] 4.724409
 
 And for this test, we will look for `REF` values that are less than
 `100`.
@@ -1306,7 +1336,7 @@ I will select the `BGM` value of `95`, and the `REF` value of `92`.
 as.double(100 * abs(95 - 92) / 92)
 ```
 
-    [1] 3.261
+    [1] 3.26087
 
 ### 3.1.4 - Create the ‘ISO Range’ variable
 
@@ -1584,8 +1614,8 @@ SampleData <- read_csv(paste0(github_root, vanderbilt_repo))
 
     Parsed with column specification:
     cols(
-      BGM = col_double(),
-      REF = col_double()
+      BGM = col_integer(),
+      REF = col_integer()
     )
 
 ``` r
@@ -1610,16 +1640,15 @@ write_csv(
 pairtypeTable("Data/AppTestDataSmall.csv")
 ```
 
-    # A tibble: 7 x 2
+    # A tibble: 6 x 2
       `Pair Type`                           Count
       <chr>                                 <int>
-    1 REF <21: Included in SEG Analysis         1
-    2 REF > 600: Excluded from SEG Analysis     2
+    1 REF > 600: Excluded from SEG Analysis     1
+    2 BGM < REF                               469
     3 Total                                  1000
-    4 BGM < REF                               470
-    5 BGM = REF                                45
-    6 BGM > REF                               485
-    7 Total included in SEG Analysis          998
+    4 BGM = REF                                66
+    5 BGM > REF                               465
+    6 Total included in SEG Analysis          999
 
 ``` r
 # 4.2.5 test prepare_csv with med data set ----
@@ -1630,27 +1659,28 @@ pairtypeTable("Data/AppTestDataMed.csv")
       `Pair Type`                           Count
       <chr>                                 <int>
     1 REF <21: Included in SEG Analysis         1
-    2 REF > 600: Excluded from SEG Analysis     9
+    2 REF > 600: Excluded from SEG Analysis     8
     3 Total                                  2000
-    4 BGM < REF                               951
-    5 BGM = REF                                98
+    4 BGM < REF                               949
+    5 BGM = REF                               100
     6 BGM > REF                               951
-    7 Total included in SEG Analysis         1991
+    7 Total included in SEG Analysis         1992
 
 ``` r
 # 4.2.6 test prepare_csv with big data set ----
 pairtypeTable("Data/AppTestDataBig.csv")
 ```
 
-    # A tibble: 6 x 2
+    # A tibble: 7 x 2
       `Pair Type`                           Count
       <chr>                                 <int>
-    1 REF > 600: Excluded from SEG Analysis    11
-    2 BGM < REF                              1447
+    1 REF <21: Included in SEG Analysis         1
+    2 REF > 600: Excluded from SEG Analysis     6
     3 Total                                  3000
-    4 BGM = REF                               155
-    5 BGM > REF                              1398
-    6 Total included in SEG Analysis         2989
+    4 BGM < REF                              1419
+    5 BGM = REF                               149
+    6 BGM > REF                              1432
+    7 Total included in SEG Analysis         2994
 
 Great\! Now I want to create a function that returns the analytic data
 set (with all the new variables and joins completed)
@@ -1671,12 +1701,17 @@ RiskPairData <- read_csv(paste0(github_root, riskpair_repo))
 
     Parsed with column specification:
     cols(
-      RiskPairID = col_double(),
-      REF = col_double(),
-      BGM = col_double(),
-      RiskFactor = col_double(),
-      abs_risk = col_double()
+      RiskPairID = col_integer(),
+      REF = col_integer(),
+      BGM = col_integer(),
+      RiskFactor = col_double()
     )
+
+    Warning in rbind(names(probs), probs_f): number of columns of result is not
+    a multiple of vector length (arg 2)
+
+    Warning: 1 parsing failure.
+    row # A tibble: 1 x 5 col     row col   expected  actual   file                                      expected   <int> <chr> <chr>     <chr>    <chr>                                     actual 1 51836 <NA>  4 columns 3 colum… 'https://raw.githubusercontent.com/mjfri… file # A tibble: 1 x 5
 
 ``` r
 # Make sure the names in the RiskPairData data frame are identical
@@ -1698,9 +1733,11 @@ LookUpRiskCat <- read_csv(paste0(github_root, lookup_repo))
 
     Parsed with column specification:
     cols(
-      risk_cat = col_double(),
+      risk_cat = col_integer(),
       ABSLB = col_double(),
-      ABSUB = col_double()
+      ABSUB = col_double(),
+      RiskCatRangeTxt = col_character(),
+      RiskCatLabel = col_character()
     )
 
 ``` r
@@ -1847,27 +1884,27 @@ vanderbilt_repo <- "mjfrigaard/SEG_shiny/master/Data/VanderbiltComplete.csv"
 segTable(paste0(github_root, vanderbilt_repo)) %>% glimpse(78)
 ```
 
-    Observations: 9,868
+    Observations: 589
     Variables: 19
-    $ BGM            <dbl> 121, 212, 161, 191, 189, 104, 293, 130, 261, 147, 83…
-    $ REF            <dbl> 127, 223, 166, 205, 210, 100, 296, 142, 231, 148, 81…
-    $ bgm_pair_cat   <chr> "BGM < REF", "BGM < REF", "BGM < REF", "BGM < REF", …
-    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-    $ included       <chr> "Total included in SEG Analysis", "Total included in…
-    $ RiskPairID     <dbl> 72849, 127636, 96928, 114997, 113800, 62605, 176390,…
-    $ RiskFactor     <dbl> 0.002544, 0.027990, 0.000000, 0.206110, 0.208650, -0…
-    $ abs_risk       <dbl> 0.002544, 0.027990, 0.000000, 0.206110, 0.208650, 0.…
-    $ risk_cat       <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-    $ ABSLB          <dbl> -0.001, -0.001, -0.001, -0.001, -0.001, -0.001, -0.0…
-    $ ABSUB          <dbl> 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.…
-    $ risk_cat_txt   <chr> "None", "None", "None", "None", "None", "None", "Non…
-    $ rel_diff       <dbl> -0.047244, -0.049327, -0.030120, -0.068293, -0.10000…
-    $ abs_rel_diff   <dbl> 0.047244, 0.049327, 0.030120, 0.068293, 0.100000, 0.…
-    $ sq_rel_diff    <dbl> 2.232e-03, 2.433e-03, 9.072e-04, 4.664e-03, 1.000e-0…
-    $ iso_diff       <dbl> 4.7244, 4.9327, 3.0120, 6.8293, 10.0000, 4.0000, 1.0…
-    $ iso_range      <chr> "<= 5% or 5 mg/dL", "<= 5% or 5 mg/dL", "<= 5% or 5 …
-    $ risk_grade     <chr> "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A…
-    $ risk_grade_txt <chr> "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5…
+    $ BGM            <dbl> 83, 67, 72, 73, 78, 83, 80, 85, 50, 73, 86, 86, 84...
+    $ REF            <dbl> 81, 69, 66, 73, 125, 85, 75, 82, 43, 69, 83, 87, 9...
+    $ bgm_pair_cat   <chr> "BGM > REF", "BGM < REF", "BGM > REF", "BGM = REF"...
+    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
+    $ included       <chr> "Total included in SEG Analysis", "Total included ...
+    $ RiskPairID     <int> 49965, 40337, 43339, 43947, 47004, 49969, 48156, 5...
+    $ RiskFactor     <dbl> -0.0050891, 0.0025445, -0.6081400, 0.0000000, 0.82...
+    $ abs_risk       <dbl> 0.0050891, 0.0025445, 0.6081400, 0.0000000, 0.8244...
+    $ risk_cat       <dbl> 0, 0, 1, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0,...
+    $ ABSLB          <dbl> -0.001, -0.001, 0.500, -0.001, 0.500, -0.001, -0.0...
+    $ ABSUB          <dbl> 0.5, 0.5, 1.0, 0.5, 1.0, 0.5, 0.5, 0.5, 0.5, 1.0, ...
+    $ risk_cat_txt   <chr> "None", "None", "Slight, Lower", "None", "Slight, ...
+    $ rel_diff       <dbl> 0.02469136, -0.02898551, 0.09090909, 0.00000000, -...
+    $ abs_rel_diff   <dbl> 0.02469136, 0.02898551, 0.09090909, 0.00000000, 0....
+    $ sq_rel_diff    <dbl> 0.0006096632, 0.0008401596, 0.0082644628, 0.000000...
+    $ iso_diff       <dbl> 2.00000, 2.00000, 6.00000, 0.00000, 37.60000, 2.00...
+    $ iso_range      <chr> "<= 5% or 5 mg/dL", "<= 5% or 5 mg/dL", "> 5 - 10%...
+    $ risk_grade     <chr> "A", "A", "B", "A", "B", "A", "A", "A", "A", "B", ...
+    $ risk_grade_txt <chr> "0 - 0.5", "0 - 0.5", "> 0.5 - 1.0", "0 - 0.5", ">...
 
 ### 4.4 - Test the `segTable()` function
 
@@ -1882,8 +1919,8 @@ SampleData <- read_csv(paste0(github_root, vanderbilt_repo))
 
     Parsed with column specification:
     cols(
-      BGM = col_double(),
-      REF = col_double()
+      BGM = col_integer(),
+      REF = col_integer()
     )
 
 ``` r
@@ -1922,79 +1959,79 @@ Now test this with three different size data frames.
 segTable("Data/AppTestDataSmall.csv") %>% dplyr::glimpse(78)
 ```
 
-    Observations: 1,000
+    Observations: 55
     Variables: 19
-    $ BGM            <dbl> 106, 121, 211, 109, 114, 119, 177, 167, 106, 313, 33…
-    $ REF            <dbl> 104, 112, 211, 120, 121, 116, 173, 133, 104, 339, 34…
-    $ bgm_pair_cat   <chr> "BGM > REF", "BGM > REF", "BGM = REF", "BGM < REF", …
-    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-    $ included       <chr> "Total included in SEG Analysis", "Total included in…
-    $ RiskPairID     <dbl> 63811, 72834, 127023, 65630, 68636, 71636, 106551, 1…
-    $ RiskFactor     <dbl> 0.000000, -0.139950, 0.000000, 0.050891, 0.109410, 0…
-    $ abs_risk       <dbl> 0.000000, 0.139950, 0.000000, 0.050891, 0.109410, 0.…
-    $ risk_cat       <dbl> 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 0…
-    $ ABSLB          <dbl> -0.001, -0.001, -0.001, -0.001, -0.001, -0.001, -0.0…
-    $ ABSUB          <dbl> 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.…
-    $ risk_cat_txt   <chr> "None", "None", "None", "None", "None", "None", "Non…
-    $ rel_diff       <dbl> 0.019231, 0.080357, 0.000000, -0.091667, -0.057851, …
-    $ abs_rel_diff   <dbl> 0.019231, 0.080357, 0.000000, 0.091667, 0.057851, 0.…
-    $ sq_rel_diff    <dbl> 3.698e-04, 6.457e-03, 0.000e+00, 8.403e-03, 3.347e-0…
-    $ iso_diff       <dbl> 1.9231, 8.0357, 0.0000, 9.1667, 5.7851, 2.5862, 2.31…
-    $ iso_range      <chr> "<= 5% or 5 mg/dL", "> 5 - 10% or mg/dL", "<= 5% or …
-    $ risk_grade     <chr> "A", "A", "A", "A", "A", "A", "A", "B", "A", "A", "A…
-    $ risk_grade_txt <chr> "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5…
+    $ BGM            <dbl> 78, 60, 63, 51, 84, 73, 75, 60, 75, 80, 77, 82, 75...
+    $ REF            <dbl> 79, 73, 57, 50, 91, 87, 72, 76, 74, 76, 98, 77, 80...
+    $ bgm_pair_cat   <chr> "BGM < REF", "BGM < REF", "BGM > REF", "BGM > REF"...
+    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
+    $ included       <chr> "Total included in SEG Analysis", "Total included ...
+    $ RiskPairID     <int> 46958, 36134, 37921, 30702, 50576, 43961, 45148, 3...
+    $ RiskFactor     <dbl> 0.000000, 0.791350, -0.244270, -0.407120, 0.180660...
+    $ abs_risk       <dbl> 0.000000, 0.791350, 0.244270, 0.407120, 0.180660, ...
+    $ risk_cat       <dbl> 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0,...
+    $ ABSLB          <dbl> -0.001, 0.500, -0.001, -0.001, -0.001, -0.001, -0....
+    $ ABSUB          <dbl> 0.5, 1.0, 0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, ...
+    $ risk_cat_txt   <chr> "None", "Slight, Lower", "None", "None", "None", "...
+    $ rel_diff       <dbl> -0.01265823, -0.17808219, 0.10526316, 0.02000000, ...
+    $ abs_rel_diff   <dbl> 0.01265823, 0.17808219, 0.10526316, 0.02000000, 0....
+    $ sq_rel_diff    <dbl> 0.0001602307, 0.0317132670, 0.0110803324, 0.000400...
+    $ iso_diff       <dbl> 1.00000, 13.00000, 6.00000, 1.00000, 7.00000, 14.0...
+    $ iso_range      <chr> "<= 5% or 5 mg/dL", "> 10 - 15% or mg/dL", "> 5 - ...
+    $ risk_grade     <chr> "A", "B", "A", "A", "A", "A", "A", "B", "A", "A", ...
+    $ risk_grade_txt <chr> "0 - 0.5", "> 0.5 - 1.0", "0 - 0.5", "0 - 0.5", "0...
 
 ``` r
 segTable("Data/AppTestDataMed.csv") %>% dplyr::glimpse(78)
 ```
 
-    Observations: 1,996
+    Observations: 121
     Variables: 19
-    $ BGM            <dbl> 139, 173, 143, 179, 396, 84, 132, 115, 122, 125, 149…
-    $ REF            <dbl> 148, 184, 112, 167, 439, 89, 128, 105, 119, 140, 127…
-    $ bgm_pair_cat   <chr> "BGM < REF", "BGM < REF", "BGM > REF", "BGM > REF", …
-    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-    $ included       <chr> "Total included in SEG Analysis", "Total included in…
-    $ RiskPairID     <dbl> 83688, 104158, 86056, 107747, 238436, 50574, 79461, …
-    $ RiskFactor     <dbl> 0.218830, 0.399490, -0.442750, -0.010178, 0.284990, …
-    $ abs_risk       <dbl> 0.218830, 0.399490, 0.442750, 0.010178, 0.284990, 0.…
-    $ risk_cat       <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-    $ ABSLB          <dbl> -0.001, -0.001, -0.001, -0.001, -0.001, -0.001, -0.0…
-    $ ABSUB          <dbl> 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.…
-    $ risk_cat_txt   <chr> "None", "None", "None", "None", "None", "None", "Non…
-    $ rel_diff       <dbl> -0.060811, -0.059783, 0.276786, 0.071856, -0.097950,…
-    $ abs_rel_diff   <dbl> 0.060811, 0.059783, 0.276786, 0.071856, 0.097950, 0.…
-    $ sq_rel_diff    <dbl> 3.698e-03, 3.574e-03, 7.661e-02, 5.163e-03, 9.594e-0…
-    $ iso_diff       <dbl> 6.0811, 5.9783, 27.6786, 7.1856, 9.7950, 5.0000, 3.1…
-    $ iso_range      <chr> "> 5 - 10% or mg/dL", "> 5 - 10% or mg/dL", "> 20% o…
-    $ risk_grade     <chr> "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A…
-    $ risk_grade_txt <chr> "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5…
+    $ BGM            <dbl> 71, 48, 46, 81, 73, 73, 84, 86, 38, 78, 72, 74, 47...
+    $ REF            <dbl> 107, 44, 259, 84, 71, 69, 91, 85, 31, 73, 66, 83, ...
+    $ bgm_pair_cat   <chr> "BGM < REF", "BGM > REF", "BGM < REF", "BGM < REF"...
+    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
+    $ included       <chr> "Total included in SEG Analysis", "Total included ...
+    $ RiskPairID     <int> 42779, 28893, 27906, 48766, 43945, 43943, 50576, 5...
+    $ RiskFactor     <dbl> 0.7786300, -0.0788800, 2.6691999, 0.0025445, -0.01...
+    $ abs_risk       <dbl> 0.7786300, 0.0788800, 2.6691999, 0.0025445, 0.0101...
+    $ risk_cat       <dbl> 1, 0, 5, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0,...
+    $ ABSLB          <dbl> 0.500, -0.001, 2.500, -0.001, -0.001, 0.500, -0.00...
+    $ ABSUB          <dbl> 1.0, 0.5, 3.0, 0.5, 0.5, 1.0, 0.5, 0.5, 0.5, 0.5, ...
+    $ risk_cat_txt   <chr> "Slight, Lower", "None", "Severe, Lower", "None", ...
+    $ rel_diff       <dbl> -0.33644860, 0.09090909, -0.82239382, -0.03571429,...
+    $ abs_rel_diff   <dbl> 0.33644860, 0.09090909, 0.82239382, 0.03571429, 0....
+    $ sq_rel_diff    <dbl> 0.1131976592, 0.0082644628, 0.6763315991, 0.001275...
+    $ iso_diff       <dbl> 33.64486, 4.00000, 82.23938, 3.00000, 2.00000, 4.0...
+    $ iso_range      <chr> "> 20% or 20 mg/dL", "<= 5% or 5 mg/dL", "> 20% or...
+    $ risk_grade     <chr> "B", "A", "D", "A", "A", "B", "A", "A", "A", "A", ...
+    $ risk_grade_txt <chr> "> 0.5 - 1.0", "0 - 0.5", "> 2.0 - 3.0", "0 - 0.5"...
 
 ``` r
 segTable("Data/AppTestDataBig.csv") %>% dplyr::glimpse(78)
 ```
 
-    Observations: 2,994
+    Observations: 189
     Variables: 19
-    $ BGM            <dbl> 78, 208, 190, 134, 202, 128, 294, 212, 134, 192, 271…
-    $ REF            <dbl> 72, 213, 209, 135, 200, 133, 339, 213, 122, 182, 291…
-    $ bgm_pair_cat   <chr> "BGM > REF", "BGM < REF", "BGM < REF", "BGM < REF", …
-    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-    $ included       <chr> "Total included in SEG Analysis", "Total included in…
-    $ RiskPairID     <dbl> 46951, 125222, 114400, 80670, 121603, 77062, 177034,…
-    $ RiskFactor     <dbl> -0.096692, 0.000000, 0.208650, 0.000000, -0.239190, …
-    $ abs_risk       <dbl> 0.096692, 0.000000, 0.208650, 0.000000, 0.239190, 0.…
-    $ risk_cat       <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-    $ ABSLB          <dbl> -0.001, -0.001, -0.001, -0.001, -0.001, -0.001, -0.0…
-    $ ABSUB          <dbl> 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.…
-    $ risk_cat_txt   <chr> "None", "None", "None", "None", "None", "None", "Non…
-    $ rel_diff       <dbl> 0.083333, -0.023474, -0.090909, -0.007407, 0.010000,…
-    $ abs_rel_diff   <dbl> 0.083333, 0.023474, 0.090909, 0.007407, 0.010000, 0.…
-    $ sq_rel_diff    <dbl> 6.944e-03, 5.510e-04, 8.264e-03, 5.487e-05, 1.000e-0…
-    $ iso_diff       <dbl> 6.0000, 2.3474, 9.0909, 0.7407, 1.0000, 3.7594, 13.2…
-    $ iso_range      <chr> "> 5 - 10% or mg/dL", "<= 5% or 5 mg/dL", "> 5 - 10%…
-    $ risk_grade     <chr> "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A…
-    $ risk_grade_txt <chr> "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5…
+    $ BGM            <dbl> 80, 81, 86, 85, 85, 72, 86, 68, 75, 42, 79, 57, 84...
+    $ REF            <dbl> 96, 82, 127, 91, 87, 94, 82, 61, 75, 39, 78, 52, 7...
+    $ bgm_pair_cat   <chr> "BGM < REF", "BGM < REF", "BGM < REF", "BGM < REF"...
+    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
+    $ included       <chr> "Total included in SEG Analysis", "Total included ...
+    $ RiskPairID     <int> 48177, 48764, 51814, 51177, 51173, 43367, 51769, 4...
+    $ RiskFactor     <dbl> 0.5267200, 0.0000000, 0.4783700, 0.1806600, 0.0229...
+    $ abs_risk       <dbl> 0.5267200, 0.0000000, 0.4783700, 0.1806600, 0.0229...
+    $ risk_cat       <dbl> 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,...
+    $ ABSLB          <dbl> 0.500, -0.001, -0.001, -0.001, -0.001, 0.500, -0.0...
+    $ ABSUB          <dbl> 1.0, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.5, 0.5, ...
+    $ risk_cat_txt   <chr> "Slight, Lower", "None", "None", "None", "None", "...
+    $ rel_diff       <dbl> -0.16666667, -0.01219512, -0.32283465, -0.06593407...
+    $ abs_rel_diff   <dbl> 0.16666667, 0.01219512, 0.32283465, 0.06593407, 0....
+    $ sq_rel_diff    <dbl> 0.0277777778, 0.0001487210, 0.1042222084, 0.004347...
+    $ iso_diff       <dbl> 16.00000, 1.00000, 32.28346, 6.00000, 2.00000, 22....
+    $ iso_range      <chr> "> 15 - 20% mg/dL", "<= 5% or 5 mg/dL", "> 20% or ...
+    $ risk_grade     <chr> "B", "A", "A", "A", "A", "B", "A", "A", "A", "A", ...
+    $ risk_grade_txt <chr> "> 0.5 - 1.0", "0 - 0.5", "0 - 0.5", "0 - 0.5", "0...
 
 ### 4.4 - Create result tables
 
@@ -2012,7 +2049,7 @@ SampMeasData <- segTable(paste0(github_root, vanderbilt_repo))
 SampMeasData %>% dataShape()
 ```
 
-    Observations: 9868
+    Observations: 589
     Variables: 19
     Class(es):  tbl_df; tbl; data.frame 
     First/last variable: BGM/risk_grade_txt
@@ -2021,18 +2058,18 @@ SampMeasData %>% dataShape()
 
     # A tibble: 10 x 19
          BGM   REF bgm_pair_cat ref_pair_2cat included RiskPairID RiskFactor
-       <dbl> <dbl> <chr>        <chr>         <chr>         <dbl>      <dbl>
-     1   121   127 BGM < REF    <NA>          Total i…      72849    0.00254
-     2   212   223 BGM < REF    <NA>          Total i…     127636    0.0280 
-     3   161   166 BGM < REF    <NA>          Total i…      96928    0      
-     4   191   205 BGM < REF    <NA>          Total i…     114997    0.206  
-     5   189   210 BGM < REF    <NA>          Total i…     113800    0.209  
-     6    90    89 BGM > REF    <NA>          Total i…      54180   -0.0153 
-     7   150   165 BGM < REF    <NA>          Total i…      90316    0.282  
-     8   121   109 BGM > REF    <NA>          Total i…      72831   -0.191  
-     9   168   160 BGM > REF    <NA>          Total i…     101129   -0.137  
-    10   149   187 BGM < REF    <NA>          Total i…      89737    0.725  
-    # … with 12 more variables: abs_risk <dbl>, risk_cat <dbl>, ABSLB <dbl>,
+       <dbl> <dbl> <chr>        <chr>         <chr>         <int>      <dbl>
+     1    83    81 BGM > REF    <NA>          Total i…      49965   -0.00509
+     2    67    69 BGM < REF    <NA>          Total i…      40337    0.00254
+     3    72    66 BGM > REF    <NA>          Total i…      43339   -0.608  
+     4    73    73 BGM = REF    <NA>          Total i…      43947    0      
+     5    78   125 BGM < REF    <NA>          Total i…      47004    0.824  
+     6    73    78 BGM < REF    <NA>          Total i…      43952    0.0865 
+     7    62    76 BGM < REF    <NA>          Total i…      37339    0.702  
+     8    81    77 BGM > REF    <NA>          Total i…      48759   -0.407  
+     9    82    77 BGM > REF    <NA>          Total i…      49360   -0.407  
+    10    54    51 BGM > REF    <NA>          Total i…      32506    0      
+    # ... with 12 more variables: abs_risk <dbl>, risk_cat <dbl>, ABSLB <dbl>,
     #   ABSUB <dbl>, risk_cat_txt <chr>, rel_diff <dbl>, abs_rel_diff <dbl>,
     #   sq_rel_diff <dbl>, iso_diff <dbl>, iso_range <chr>, risk_grade <chr>,
     #   risk_grade_txt <chr>
@@ -2090,10 +2127,10 @@ MARDTable2
 ```
 
 ``` 
-  Total Bias MARD    CV Lower 95% Limit of Agreement
-1  9868 0.6%   7% 14.8%                       -28.3%
+  Total  Bias   MARD    CV Lower 95% Limit of Agreement
+1   589 -0.1% 11.28% 18.7%                       -36.7%
   Upper 95% Limit of Agreement
-1                        29.6%
+1                        36.6%
 ```
 
 `Bias`: Mean relative difference between BGM and REF ( BGM-REF )/ REF
@@ -2136,10 +2173,10 @@ SampMeasData %>%
     # A tibble: 4 x 2
       risk_grade_txt     n
       <chr>          <int>
-    1 0 - 0.5         9474
-    2 > 0.5 - 1.0      294
-    3 > 1.0 - 2.0       79
-    4 > 2.0 - 3.0       21
+    1 0 - 0.5          455
+    2 > 0.5 - 1.0      101
+    3 > 1.0 - 2.0       28
+    4 > 2.0 - 3.0        5
 
 So I create a count table of the `risk_grade` variable.
 
@@ -2151,10 +2188,10 @@ SampMeasData %>%
     # A tibble: 4 x 2
       risk_grade     n
       <chr>      <int>
-    1 A           9474
-    2 B            294
-    3 C             79
-    4 D             21
+    1 A            455
+    2 B            101
+    3 C             28
+    4 D              5
 
 And I build a lookup table called `lkpRiskGrade`.
 
@@ -2208,10 +2245,10 @@ SampMeasData %>%
 # A tibble: 5 x 4
      ID `Risk Grade` `Number of Pairs` Percent
   <dbl> <chr>                    <int> <chr>  
-1     1 A                         9474 96.01% 
-2     2 B                          294 2.98%  
-3     3 C                           79 0.8%   
-4     4 D                           21 0.21%  
+1     1 A                          455 77.25% 
+2     2 B                          101 17.15% 
+3     3 C                           28 4.75%  
+4     4 D                            5 0.85%  
 5     5 E                           NA NA     
 ```
 
@@ -2268,7 +2305,15 @@ RiskGradeTable3 %>%
                                 "red")))
 ```
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/4.4.5_assign_RiskGradeTable3-1.png)<!-- -->
+<!--html_preserve-->
+
+<div id="htmlwidget-005f80bb0188fa42c0a3" class="datatables html-widget" style="width:100%;height:auto;">
+
+</div>
+
+<script type="application/json" data-for="htmlwidget-005f80bb0188fa42c0a3">{"x":{"filter":"none","data":[["1","2","3","4","5"],[1,2,3,4,5],["A","B","C","D","E"],[455,101,28,5,null],["77.25%","17.15%","4.75%","0.85%","NA"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>ID<\/th>\n      <th>Risk Grade<\/th>\n      <th>Number of Pairs<\/th>\n      <th>Percent<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"lengthChange":false,"dom":"t","rownames":true,"columnDefs":[{"className":"dt-right","targets":[1,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data) {\nvar value=data[1]; $(row).css({'background-color':value == '1' ? 'limegreen' : value == '2' ? 'greenyellow' : value == '3' ? 'yellow' : value == '4' ? 'orange' : value == '5' ? 'red' : ''});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+
+<!--/html_preserve-->
 
 Create look-up category
 
@@ -2337,7 +2382,15 @@ SampMeasData %>%
                                    "#FF4500", "#FF0000")))
 ```
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/4.4.6_SEGRiskCategoryTable4-1.png)<!-- -->
+<!--html_preserve-->
+
+<div id="htmlwidget-d1198736a7f76285f02f" class="datatables html-widget" style="width:100%;height:auto;">
+
+</div>
+
+<script type="application/json" data-for="htmlwidget-d1198736a7f76285f02f">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8"],[0,1,2,3,5,4,6,7],["None","Slight, Lower","Slight, Higher","Moderate, Lower","Severe, Lower","Moderate, Higher","Severe, Upper","Extreme"],[455,101,19,9,3,2,null,null],["77.25%","17.15%","3.23%","1.53%","0.51%","0.34%","NA","NA"]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>SEG Risk Category<\/th>\n      <th>SEG Risk Category<\/th>\n      <th>Number of Pairs<\/th>\n      <th>Percent<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"lengthChange":false,"dom":"t","rownames":false,"columnDefs":[{"className":"dt-right","targets":[1,3]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false,"rowCallback":"function(row, data) {\nvar value=data[1]; $(row).css({'background-color':value == '0' ? '#00EE00' : value == '1' ? '#ADFF2F' : value == '2' ? '#FFFF00' : value == '3' ? '#FFD700' : value == '4' ? '#FFA500' : value == '5' ? '#EE7600' : value == '6' ? '#FF4500' : value == '7' ? '#FF0000' : ''});\n}"}},"evals":["options.rowCallback"],"jsHooks":[]}</script>
+
+<!--/html_preserve-->
 
 Create iso-range table.
 
@@ -2359,11 +2412,11 @@ ISORangeTable5
 # A tibble: 5 x 3
   `ISO range`             N Percent
   <chr>               <int> <chr>  
-1 <= 5% or 5 mg/dL     5328 54%    
-2 > 5 - 10% or mg/dL   2842 28.8%  
-3 > 10 - 15% or mg/dL  1050 10.6%  
-4 > 15 - 20% mg/dL      340 3.4%   
-5 > 20% or 20 mg/dL     308 3.1%   
+1 <= 5% or 5 mg/dL      326 55.3%  
+2 > 5 - 10% or mg/dL    135 22.9%  
+3 > 10 - 15% or mg/dL    58 9.8%   
+4 > 20% or 20 mg/dL      45 7.6%   
+5 > 15 - 20% mg/dL       25 4.2%   
 ```
 
 ``` r
@@ -2373,11 +2426,11 @@ SampMeasData %>% dplyr::count(iso_range)
     # A tibble: 5 x 2
       iso_range               n
       <chr>               <int>
-    1 <= 5% or 5 mg/dL     5328
-    2 > 10 - 15% or mg/dL  1050
-    3 > 15 - 20% mg/dL      340
-    4 > 20% or 20 mg/dL     308
-    5 > 5 - 10% or mg/dL   2842
+    1 <= 5% or 5 mg/dL      326
+    2 > 10 - 15% or mg/dL    58
+    3 > 15 - 20% mg/dL       25
+    4 > 20% or 20 mg/dL      45
+    5 > 5 - 10% or mg/dL    135
 
 Create look-up table
 
@@ -2428,11 +2481,11 @@ ISORangeTable5
 # A tibble: 5 x 4
      ID `ISO range`             N Percent
   <int> <chr>               <int> <chr>  
-1     1 <= 5% or 5 mg/dL     5328 53.99% 
-2     2 > 5 - 10% or mg/dL   2842 28.8%  
-3     3 > 10 - 15% or mg/dL  1050 10.64% 
-4     4 > 15 - 20% mg/dL      340 3.45%  
-5     5 > 20% or 20 mg/dL     308 3.12%  
+1     1 <= 5% or 5 mg/dL      326 55.35% 
+2     2 > 5 - 10% or mg/dL    135 22.92% 
+3     3 > 10 - 15% or mg/dL    58 9.85%  
+4     5 > 20% or 20 mg/dL      45 7.64%  
+5     4 > 15 - 20% mg/dL       25 4.24%  
 ```
 
 This is the final table before the `binomialTable` function.
@@ -2441,13 +2494,13 @@ This is the final table before the `binomialTable` function.
 knitr::kable(ISORangeTable5)
 ```
 
-| ID | ISO range            |    N | Percent |
-| -: | :------------------- | ---: | :------ |
-|  1 | \<= 5% or 5 mg/dL    | 5328 | 53.99%  |
-|  2 | \> 5 - 10% or mg/dL  | 2842 | 28.8%   |
-|  3 | \> 10 - 15% or mg/dL | 1050 | 10.64%  |
-|  4 | \> 15 - 20% mg/dL    |  340 | 3.45%   |
-|  5 | \> 20% or 20 mg/dL   |  308 | 3.12%   |
+| ID | ISO range            |   N | Percent |
+| -: | :------------------- | --: | :------ |
+|  1 | \<= 5% or 5 mg/dL    | 326 | 55.35%  |
+|  2 | \> 5 - 10% or mg/dL  | 135 | 22.92%  |
+|  3 | \> 10 - 15% or mg/dL |  58 | 9.85%   |
+|  5 | \> 20% or 20 mg/dL   |  45 | 7.64%   |
+|  4 | \> 15 - 20% mg/dL    |  25 | 4.24%   |
 
 First I need to get the count from the `iso_diff` variable
 
@@ -2509,11 +2562,11 @@ BinomialTest6
 
 ``` 
   Compliant Pairs Compliant Pairs % Lower Bound for Acceptance
-1            9220             93.4%                       9339
+1             519             88.1%                        551
   Lower Bound for Acceptance %
-1                        94.6%
+1                        93.5%
                                                                   Result
-1 93.4% < 94.6% - Does not meet BGM Surveillance Study Accuracy Standard
+1 88.1% < 93.5% - Does not meet BGM Surveillance Study Accuracy Standard
 ```
 
 ``` r
@@ -2536,10 +2589,10 @@ MARDTable2
 ```
 
 ``` 
-  Total Bias MARD    CV Lower 95% Limit of Agreement
-1  9868 0.6%   7% 14.8%                       -28.3%
+  Total  Bias   MARD    CV Lower 95% Limit of Agreement
+1   589 -0.1% 11.28% 18.7%                       -36.7%
   Upper 95% Limit of Agreement
-1                        29.6%
+1                        36.6%
 ```
 
 ``` r
@@ -2550,10 +2603,10 @@ RiskGradeTable3
 # A tibble: 5 x 4
      ID `Risk Grade` `Number of Pairs` Percent
   <dbl> <chr>                    <int> <chr>  
-1     1 A                         9474 96.01% 
-2     2 B                          294 2.98%  
-3     3 C                           79 0.8%   
-4     4 D                           21 0.21%  
+1     1 A                          455 77.25% 
+2     2 B                          101 17.15% 
+3     3 C                           28 4.75%  
+4     4 D                            5 0.85%  
 5     5 E                           NA NA     
 ```
 
@@ -2583,11 +2636,11 @@ ISORangeTable5
 # A tibble: 5 x 4
      ID `ISO range`             N Percent
   <int> <chr>               <int> <chr>  
-1     1 <= 5% or 5 mg/dL     5328 53.99% 
-2     2 > 5 - 10% or mg/dL   2842 28.8%  
-3     3 > 10 - 15% or mg/dL  1050 10.64% 
-4     4 > 15 - 20% mg/dL      340 3.45%  
-5     5 > 20% or 20 mg/dL     308 3.12%  
+1     1 <= 5% or 5 mg/dL      326 55.35% 
+2     2 > 5 - 10% or mg/dL    135 22.92% 
+3     3 > 10 - 15% or mg/dL    58 9.85%  
+4     5 > 20% or 20 mg/dL      45 7.64%  
+5     4 > 15 - 20% mg/dL       25 4.24%  
 ```
 
 ``` r
@@ -2596,11 +2649,11 @@ BinomialTest6
 
 ``` 
   Compliant Pairs Compliant Pairs % Lower Bound for Acceptance
-1            9220             93.4%                       9339
+1             519             88.1%                        551
   Lower Bound for Acceptance %
-1                        94.6%
+1                        93.5%
                                                                   Result
-1 93.4% < 94.6% - Does not meet BGM Surveillance Study Accuracy Standard
+1 88.1% < 93.5% - Does not meet BGM Surveillance Study Accuracy Standard
 ```
 
 All but the `BinomialTest` table will work in app with `isolate()`
@@ -2681,11 +2734,11 @@ binomialTable(dataset = SampMeasData)
 
 ``` 
   Compliant Pairs Compliant Pairs % Lower Bound for Acceptance
-1            9220             93.4%                       9339
+1             519             88.1%                        551
   Lower Bound for Acceptance %
-1                        94.6%
+1                        93.5%
                                                                   Result
-1 93.4% < 94.6% - Does not meet BGM Surveillance Study Accuracy Standard
+1 88.1% < 93.5% - Does not meet BGM Surveillance Study Accuracy Standard
 ```
 
 ***NOTE*** the call to `dataset <- segTable(dat)` needs to be added to
@@ -2829,7 +2882,7 @@ load("Data/heatmap_plot.RData")
 heatmap_plot
 ```
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/heatmap_plot.RData-1.png)<!-- -->
+![](README_files/figure-gfm/heatmap_plot.RData-1.png)<!-- -->
 
 Now we introduce the uploaded sample data frame (that has already been
 wrangled).
@@ -2852,12 +2905,11 @@ heat_map_1.0 <- heatmap_plot +
 heat_map_1.0
 ```
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/heat_map_1.0-1.png)<!-- -->
+![](README_files/figure-gfm/heat_map_1.0-1.png)<!-- -->
 
-Export the file as
-.png
+Export the file as .png
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/ggsave_heat_map_1.0-1.png)<!-- -->
+![](README_files/figure-gfm/ggsave_heat_map_1.0-1.png)<!-- -->
 
 ## PART 6 - Modified Bland-Altman
 
@@ -2869,27 +2921,27 @@ SampMeasDataBig <- segTable("Data/AppTestDataBig.csv")
 SampMeasDataBig %>% glimpse(78)
 ```
 
-    Observations: 2,994
+    Observations: 189
     Variables: 19
-    $ BGM            <dbl> 78, 208, 190, 134, 202, 128, 294, 212, 134, 192, 271…
-    $ REF            <dbl> 72, 213, 209, 135, 200, 133, 339, 213, 122, 182, 291…
-    $ bgm_pair_cat   <chr> "BGM > REF", "BGM < REF", "BGM < REF", "BGM < REF", …
-    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, …
-    $ included       <chr> "Total included in SEG Analysis", "Total included in…
-    $ RiskPairID     <dbl> 46951, 125222, 114400, 80670, 121603, 77062, 177034,…
-    $ RiskFactor     <dbl> -0.096692, 0.000000, 0.208650, 0.000000, -0.239190, …
-    $ abs_risk       <dbl> 0.096692, 0.000000, 0.208650, 0.000000, 0.239190, 0.…
-    $ risk_cat       <dbl> 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0…
-    $ ABSLB          <dbl> -0.001, -0.001, -0.001, -0.001, -0.001, -0.001, -0.0…
-    $ ABSUB          <dbl> 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.…
-    $ risk_cat_txt   <chr> "None", "None", "None", "None", "None", "None", "Non…
-    $ rel_diff       <dbl> 0.083333, -0.023474, -0.090909, -0.007407, 0.010000,…
-    $ abs_rel_diff   <dbl> 0.083333, 0.023474, 0.090909, 0.007407, 0.010000, 0.…
-    $ sq_rel_diff    <dbl> 6.944e-03, 5.510e-04, 8.264e-03, 5.487e-05, 1.000e-0…
-    $ iso_diff       <dbl> 6.0000, 2.3474, 9.0909, 0.7407, 1.0000, 3.7594, 13.2…
-    $ iso_range      <chr> "> 5 - 10% or mg/dL", "<= 5% or 5 mg/dL", "> 5 - 10%…
-    $ risk_grade     <chr> "A", "A", "A", "A", "A", "A", "A", "A", "A", "A", "A…
-    $ risk_grade_txt <chr> "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5", "0 - 0.5…
+    $ BGM            <dbl> 80, 81, 86, 85, 85, 72, 86, 68, 75, 42, 79, 57, 84...
+    $ REF            <dbl> 96, 82, 127, 91, 87, 94, 82, 61, 75, 39, 78, 52, 7...
+    $ bgm_pair_cat   <chr> "BGM < REF", "BGM < REF", "BGM < REF", "BGM < REF"...
+    $ ref_pair_2cat  <chr> NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA, NA...
+    $ included       <chr> "Total included in SEG Analysis", "Total included ...
+    $ RiskPairID     <int> 48177, 48764, 51814, 51177, 51173, 43367, 51769, 4...
+    $ RiskFactor     <dbl> 0.5267200, 0.0000000, 0.4783700, 0.1806600, 0.0229...
+    $ abs_risk       <dbl> 0.5267200, 0.0000000, 0.4783700, 0.1806600, 0.0229...
+    $ risk_cat       <dbl> 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,...
+    $ ABSLB          <dbl> 0.500, -0.001, -0.001, -0.001, -0.001, 0.500, -0.0...
+    $ ABSUB          <dbl> 1.0, 0.5, 0.5, 0.5, 0.5, 1.0, 0.5, 0.5, 0.5, 0.5, ...
+    $ risk_cat_txt   <chr> "Slight, Lower", "None", "None", "None", "None", "...
+    $ rel_diff       <dbl> -0.16666667, -0.01219512, -0.32283465, -0.06593407...
+    $ abs_rel_diff   <dbl> 0.16666667, 0.01219512, 0.32283465, 0.06593407, 0....
+    $ sq_rel_diff    <dbl> 0.0277777778, 0.0001487210, 0.1042222084, 0.004347...
+    $ iso_diff       <dbl> 16.00000, 1.00000, 32.28346, 6.00000, 2.00000, 22....
+    $ iso_range      <chr> "> 15 - 20% mg/dL", "<= 5% or 5 mg/dL", "> 20% or ...
+    $ risk_grade     <chr> "B", "A", "A", "A", "A", "B", "A", "A", "A", "A", ...
+    $ risk_grade_txt <chr> "> 0.5 - 1.0", "0 - 0.5", "0 - 0.5", "0 - 0.5", "0...
 
 The `SampMeasDataBig` file represents what the data will look like in
 the app when they have been uploaded.
@@ -2909,7 +2961,7 @@ SEGBlandAltmanRefVals
 
     # A tibble: 11 x 3
          Ref    UB     LB
-       <dbl> <dbl>  <dbl>
+       <int> <dbl>  <dbl>
      1    20 0.75  -0.75 
      2    30 0.5   -0.5  
      3    40 0.375 -0.375
@@ -2966,7 +3018,7 @@ mod_ba_plot_1.0 <- SampMeasDataBig %>%
 mod_ba_plot_1.0
 ```
 
-![](SEG_heatmap_phase_1_README_files/figure-gfm/mod_ba_plot_1.0-1.png)<!-- -->
+![](README_files/figure-gfm/mod_ba_plot_1.0-1.png)<!-- -->
 
 ``` r
 ggsave(filename = "Image/mod_ba_plot_1.0.png")
@@ -3044,33 +3096,33 @@ devtools::session_info() # put this at the end of document
 
 ``` 
  setting  value                       
- version  R version 3.5.0 (2018-04-23)
+ version  R version 3.5.1 (2018-07-02)
  system   x86_64, darwin15.6.0        
  ui       X11                         
  language (EN)                        
  collate  en_US.UTF-8                 
  tz       America/Los_Angeles         
- date     2018-08-22                  
+ date     2018-10-08                  
 ```
 
     Packages -----------------------------------------------------------------
 
 ``` 
- package     * version     date       source                           
- assertthat    0.2.0       2017-04-11 CRAN (R 3.5.0)                   
- backports     1.1.2       2017-12-13 CRAN (R 3.5.0)                   
- base        * 3.5.0       2018-04-24 local                            
- bindr         0.1.1       2018-03-13 CRAN (R 3.5.0)                   
- bindrcpp    * 0.2.2       2018-03-29 CRAN (R 3.5.0)                   
- bookdown      0.7         2018-02-18 CRAN (R 3.5.0)                   
- broom         0.5.0       2018-07-17 CRAN (R 3.5.0)                   
- cellranger    1.1.0       2016-07-27 CRAN (R 3.5.0)                   
- cli           1.0.0       2017-11-05 CRAN (R 3.5.0)                   
- colorspace    1.3-2       2016-12-14 CRAN (R 3.5.0)                   
- compiler      3.5.0       2018-04-24 local                            
- crayon        1.3.4       2017-09-16 CRAN (R 3.5.0)                   
- crosstalk     1.0.0       2016-12-21 CRAN (R 3.5.0)                   
- curl          3.2         2018-03-28 CRAN (R 3.5.0)                   
- datapasta   * 3.0.0       2018-01-24 CRAN (R 3.5.0)                   
+ package     * version date       source        
+ assertthat    0.2.0   2017-04-11 CRAN (R 3.5.0)
+ backports     1.1.2   2017-12-13 CRAN (R 3.5.0)
+ base        * 3.5.1   2018-07-05 local         
+ bindr         0.1.1   2018-03-13 CRAN (R 3.5.0)
+ bindrcpp    * 0.2.2   2018-03-29 CRAN (R 3.5.0)
+ bookdown      0.7     2018-02-18 CRAN (R 3.5.0)
+ broom         0.5.0   2018-07-17 CRAN (R 3.5.0)
+ cellranger    1.1.0   2016-07-27 CRAN (R 3.5.0)
+ cli           1.0.1   2018-09-25 CRAN (R 3.5.0)
+ colorspace    1.3-2   2016-12-14 CRAN (R 3.5.0)
+ compiler      3.5.1   2018-07-05 local         
+ crayon        1.3.4   2017-09-16 CRAN (R 3.5.0)
+ crosstalk     1.0.0   2016-12-21 CRAN (R 3.5.0)
+ curl          3.2     2018-03-28 CRAN (R 3.5.0)
+ datapasta   * 3.0.0   2018-01-24 CRAN (R 3.5.0)
  [ reached getOption("max.print") -- omitted 82 rows ]
 ```
