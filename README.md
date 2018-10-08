@@ -13,7 +13,7 @@ Martin Frigaard
 # Objective
 
 Provide the background documentation and code for the Shiny SEG app.
-This is currently version 1.5.1. The major changes to this app have been
+This is currently version 1.3. The major changes to this app have been
 documented below.
 
 ## News for Version 1.3\!\!
